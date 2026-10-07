@@ -1,0 +1,24 @@
+
+{% extends "base.html" %}
+{% block title %}Explore Courses — AdaptiveLearn{% endblock %}
+{% block content %}
+<div class="dashboard-head">
+  <div><div class="eyebrow">LEARNING LIBRARY • CURATED CONTENT</div>
+  <h1>Explore courses that move you forward</h1>
+  <p class="muted mb-0">Discover practical, visual and engaging content matched to your skill level and career direction.</p></div>
+</div>
+<div class="feature-image mb-4 d-flex align-items-end p-4">
+  <div class="text-white"><span class="badge bg-light text-dark rounded-pill mb-2">LEARN AT YOUR PACE</span>
+  <h3 class="mb-1">Build skills for the future</h3><p class="mb-0 opacity-75">Video lessons • checkpoints • adaptive assessments • verified attendance</p></div>
+</div>
+<div class="row g-4">
+{% for c in courses %}
+<div class="col-md-6 col-xl-4"><div class="course-card"><div class="course-cover {{loop.index0%3==1 and 'alt' or (loop.index0%3==2 and 'green' or '')}}"><i class="bi bi-book-half"></i><span class="level-pill">{{c['level']|upper}}</span></div><div class="course-body"><span class="badge-soft">{{c['category']}}</span><h5 class="mt-2">{{c['title']}}</h5><p>{{c['description']}}</p><div class="small muted mb-3"><i class="bi bi-bullseye me-1"></i>{{c['career_target'] or 'General learning'}}</div>
+<form method="post" action="{{url_for('enroll',course_id=c['id'])}}">
+  <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+  <button class="btn btn-gradient w-100">Enroll &amp; start learning</button>
+</form>
+</div></div></div>
+{% else %}<div class="empty-state">No published courses are available.</div>{% endfor %}
+</div>
+{% endblock %}

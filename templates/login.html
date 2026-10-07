@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Sign in — AdaptiveLearn{% endblock %}
+{% block content %}
+<div class="auth-modern">
+  <div class="auth-panel auth-panel-dark">
+    <a class="public-brand auth-brand" href="{{ url_for('index') }}"><span class="brand-orbit"><i class="bi bi-stars"></i></span><span>Adaptive<span>Learn</span></span></a>
+    <div class="auth-art">
+      <div class="auth-art-glow"></div><div class="auth-mini-card mini-ai"><i class="bi bi-stars"></i><span>Personalized</span><strong>Learning path</strong></div>
+      <div class="auth-art-core"><i class="bi bi-arrow-up-right"></i></div>
+      <div class="auth-mini-card mini-progress"><i class="bi bi-graph-up-arrow"></i><span>Progress</span><strong>+24% this week</strong></div>
+    </div>
+    <div class="auth-panel-copy"><span>YOUR LEARNING, EVOLVED</span><h1>Keep your<br><em>momentum.</em></h1><p>Pick up exactly where you left off and let your learning path adapt to your progress.</p></div>
+    <div class="auth-dots"><i></i><i></i><i></i></div>
+  </div>
+  <div class="auth-panel auth-panel-form">
+    <div class="auth-form-wrap">
+      <a class="back-home" href="{{ url_for('index') }}"><i class="bi bi-arrow-left"></i> Back to home</a>
+      <div class="auth-heading"><span class="auth-icon"><i class="bi bi-box-arrow-in-right"></i></span><span>WELCOME BACK</span><h2>Sign in to your<br>learning space.</h2><p>Continue your personalized journey.</p></div>
+      <form method="post" class="modern-form" novalidate>
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <label>Email address</label><div class="input-wrap"><i class="bi bi-envelope"></i><input name="email" type="email" value="{{ form.email if form else '' }}" placeholder="you@example.com" autocomplete="email" required></div>
+        <label>Password</label><div class="input-wrap"><i class="bi bi-lock"></i><input id="loginPassword" name="password" type="password" placeholder="Enter your password" autocomplete="current-password" required><button type="button" class="password-toggle" data-target="loginPassword"><i class="bi bi-eye"></i></button></div>
+        <button class="btn btn-gradient auth-submit" type="submit">Sign in <i class="bi bi-arrow-right"></i></button>
+      </form>
+      <p class="auth-switch">New to AdaptiveLearn? <a href="{{ url_for('register') }}">Create an account</a></p>
+      <div class="auth-note"><i class="bi bi-shield-check"></i><span>Your password is securely hashed. Never share your login credentials.</span></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}<script>
+document.querySelectorAll('.password-toggle').forEach(btn=>btn.addEventListener('click',()=>{const i=document.getElementById(btn.dataset.target);i.type=i.type==='password'?'text':'password';btn.querySelector('i').className=i.type==='password'?'bi bi-eye':'bi bi-eye-slash';}));
+</script>{% endblock %}

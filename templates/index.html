@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}AdaptiveLearn — AI-Powered Lifelong Learning{% endblock %}
+{% block content %}
+<div class="public-home">
+  <nav class="public-nav">
+    <a class="public-brand" href="{{ url_for('index') }}">
+      <span class="brand-orbit"><i class="bi bi-stars"></i></span>
+      <span>Adaptive<span>Learn</span></span>
+    </a>
+    <div class="public-nav-links">
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#achievements">Growth</a>
+    </div>
+    <div class="public-nav-actions">
+      <a class="nav-login" href="{{ url_for('login') }}">Sign in</a>
+      <a class="btn btn-gradient nav-cta" href="{{ url_for('register') }}">Get started <i class="bi bi-arrow-up-right"></i></a>
+    </div>
+  </nav>
+
+  <section class="home-hero">
+    <div class="hero-grid-glow"></div>
+    <div class="hero-copy">
+      <div class="hero-kicker"><span></span> AI-POWERED PERSONAL LEARNING</div>
+      <h1>Learn at your pace.<br><em>Grow for your future.</em></h1>
+      <p>AdaptiveLearn turns your performance, goals and learning behavior into a personalized journey that evolves as you do.</p>
+      <div class="hero-actions">
+        <a class="btn btn-gradient btn-lg" href="{{ url_for('register') }}">Start learning free <i class="bi bi-arrow-right ms-2"></i></a>
+        <a class="hero-secondary" href="#how-it-works"><span class="play-circle"><i class="bi bi-play-fill"></i></span> See how it works</a>
+      </div>
+      <div class="hero-trust">
+        <div class="trust-avatars"><span>A</span><span>L</span><span>S</span><span>+</span></div>
+        <div><strong>Built for continuous growth</strong><small>Personalized paths • Active learning • Real progress</small></div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="floating-chip chip-top"><i class="bi bi-stars"></i> AI recommendations</div>
+      <div class="learning-orb">
+        <div class="orb-ring ring-1"></div><div class="orb-ring ring-2"></div>
+        <div class="orb-core"><i class="bi bi-lightning-charge-fill"></i></div>
+        <div class="orb-label"><strong>Adaptive</strong><small>learning engine</small></div>
+      </div>
+      <div class="floating-card progress-float">
+        <div class="float-icon"><i class="bi bi-graph-up-arrow"></i></div>
+        <div><small>Weekly progress</small><strong>+24% <i class="bi bi-arrow-up"></i></strong></div>
+      </div>
+      <div class="floating-card streak-float">
+        <div class="streak-flame"><i class="bi bi-fire"></i></div>
+        <div><small>Learning streak</small><strong>12 days</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="feature-strip" id="features">
+    <div class="section-intro"><span>ONE PLATFORM</span><h2>Designed around <em>you.</em></h2><p>Everything you need to make learning consistent, measurable and genuinely personal.</p></div>
+    <div class="feature-grid">
+      <article class="feature-card feature-purple"><div class="feature-icon"><i class="bi bi-cpu-fill"></i></div><span>01</span><h3>Adaptive paths</h3><p>Recommendations adjust to your skill level, career goal, strengths and gaps.</p></article>
+      <article class="feature-card feature-cyan"><div class="feature-icon"><i class="bi bi-play-circle-fill"></i></div><span>02</span><h3>Active video learning</h3><p>Interactive checkpoints turn passive watching into verified understanding.</p></article>
+      <article class="feature-card feature-green"><div class="feature-icon"><i class="bi bi-bar-chart-fill"></i></div><span>03</span><h3>Smart analytics</h3><p>Track scores, topics, completion and progress through clear learning insights.</p></article>
+      <article class="feature-card feature-orange"><div class="feature-icon"><i class="bi bi-trophy-fill"></i></div><span>04</span><h3>Motivating growth</h3><p>Build streaks, earn achievements and advance from beginner to advanced.</p></article>
+    </div>
+  </section>
+
+  <section class="workflow-section" id="how-it-works">
+    <div class="workflow-copy"><span class="section-label">HOW IT WORKS</span><h2>A learning loop that gets <em>smarter.</em></h2><p>Your activity feeds the platform. The platform uses that signal to continuously improve what you learn next.</p></div>
+    <div class="workflow-steps">
+      <div class="workflow-step"><b>01</b><div><i class="bi bi-person-check"></i></div><section><h3>Build your profile</h3><p>Tell us your goals and start at the right skill level.</p></section></div>
+      <div class="workflow-step"><b>02</b><div><i class="bi bi-magic"></i></div><section><h3>Learn & interact</h3><p>Watch lessons, complete checkpoints and take AI assessments.</p></section></div>
+      <div class="workflow-step"><b>03</b><div><i class="bi bi-arrow-repeat"></i></div><section><h3>Adapt & improve</h3><p>Your results refresh recommendations and reveal your next best step.</p></section></div>
+    </div>
+  </section>
+
+  <section class="growth-banner" id="achievements">
+    <div><span class="section-label light">KEEP MOVING FORWARD</span><h2>Small sessions.<br><em>Meaningful progress.</em></h2><p>Turn consistency into momentum with streaks, checkpoints, analytics and achievement milestones.</p></div>
+    <div class="growth-metrics">
+      <div><i class="bi bi-fire"></i><strong>Streak Builder</strong><small>Keep your daily habit alive</small></div>
+      <div><i class="bi bi-lightning-charge"></i><strong>Fast Learner</strong><small>Master checkpoints actively</small></div>
+      <div><i class="bi bi-award"></i><strong>Skill Growth</strong><small>Advance your learning level</small></div>
+    </div>
+  </section>
+
+  <footer class="public-footer"><div class="public-brand"><span class="brand-orbit"><i class="bi bi-stars"></i></span><span>Adaptive<span>Learn</span></span></div><p>Personalized learning for a lifetime of growth.</p><div><a href="{{ url_for('login') }}">Sign in</a><a href="{{ url_for('register') }}">Create account</a></div></footer>
+</div>
+{% endblock %}

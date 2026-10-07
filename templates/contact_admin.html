@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Contact Administrator — AdaptiveLearn{% endblock %}
+{% block content %}
+<div class="dashboard-head">
+  <div><div class="eyebrow">STUDENT SUPPORT</div><h1>Contact Administrator</h1><p class="muted mb-0">Send questions, feedback, or learning-related queries directly to the platform administrator.</p></div>
+</div>
+<div class="row g-4 mt-1">
+  <div class="col-xl-6">
+    <div class="chart-card">
+      <div class="d-flex align-items-center gap-3 mb-3"><div class="stat-icon"><i class="bi bi-chat-dots-fill"></i></div><div><h4 class="mb-1">Send a query</h4><p class="muted mb-0">Administrator: {{admin['name']}}</p></div></div>
+      <form method="post">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <label class="form-label">Subject</label><input class="form-control mb-3" name="subject" placeholder="e.g. Question about a course">
+        <label class="form-label">Your message</label><textarea class="form-control mb-3" name="message" rows="7" placeholder="Describe your question or issue..." required></textarea>
+        <button class="btn btn-gradient"><i class="bi bi-send me-1"></i> Send to administrator</button>
+      </form>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="chart-card">
+      <h4>Conversation history</h4><p class="muted">Your latest messages and administrator replies.</p>
+      <div class="mt-3">
+      {% for m in history %}
+        <div class="border rounded-4 p-3 mb-3 {% if m['sender_id']==session['user_id'] %}bg-light{% endif %}">
+          <div class="d-flex justify-content-between"><strong>{{m['subject']}}</strong><small class="muted">{{m['created_at'][:16].replace('T',' ')}}</small></div>
+          <div class="small muted mt-1">From: {{m['sender_name']}} → To: {{m['recipient_name']}}</div>
+          <p class="mb-0 mt-2" style="white-space:pre-wrap">{{m['message']}}</p>
+        </div>
+      {% else %}<div class="notification-empty"><i class="bi bi-chat-square-text"></i><p>No messages yet. Send your first query.</p></div>{% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

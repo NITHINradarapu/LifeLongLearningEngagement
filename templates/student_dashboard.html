@@ -1,0 +1,112 @@
+
+{% extends "base.html" %}
+{% block title %}Student Dashboard — AdaptiveLearn{% endblock %}
+{% block content %}
+
+<div class="hero-image-card mb-4">
+  <div class="row align-items-center g-4">
+    <div class="col-lg-8">
+      <div class="eyebrow">PERSONALIZED LEARNING • AI • ANALYTICS</div>
+      <h2 class="display-6 fw-bold mt-2 mb-2">Keep growing, one skill at a time.</h2>
+      <p class="mb-3" style="color:rgba(255,255,255,.78);max-width:680px">
+        Your learning space adapts to your goals, performance and progress—so every next course has a purpose.
+      </p>
+      <div class="d-flex flex-wrap gap-2">
+        <a href="{{url_for('course_catalog')}}" class="btn btn-light"><i class="bi bi-compass me-1"></i> Explore courses</a>
+        <a href="{{url_for('student_learning_path')}}" class="btn btn-outline-light"><i class="bi bi-signpost-split me-1"></i> My learning path</a>
+      </div>
+    </div>
+    <div class="col-lg-4 d-none d-lg-block">
+      <div class="text-center">
+        <i class="bi bi-mortarboard-fill" style="font-size:92px;opacity:.9;filter:drop-shadow(0 18px 20px rgba(0,0,0,.18))"></i>
+        <div class="mt-2 small" style="color:rgba(255,255,255,.65)">Learn • Practice • Measure • Grow</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="dashboard-head"><div><div class="eyebrow">STUDENT WORKSPACE</div><h1>Good to see you, {{user['name'].split(' ')[0]}} 👋</h1><p class="muted mb-0">Your learning path is adapting around your goals in <strong>{{user['career_goal'] or 'lifelong learning'}}</strong>.</p></div><a href="{{url_for('course_catalog')}}" class="btn btn-gradient">Explore courses <i class="bi bi-arrow-right ms-1"></i></a></div>
+<div class="chart-card mt-4"><div class="d-flex justify-content-between align-items-center"><div><h4 class="mb-1">AI-powered assessments</h4><p class="muted mb-0">Generate a fresh assessment tailored to your performance and career goal from any enrolled course.</p></div><i class="bi bi-stars fs-1"></i></div></div>
+<div class="row g-3">
+{% for icon,label,value in [('bi-collection-play','Enrolled Courses',stats['enrolled']),('bi-check2-circle','Completed',stats['completed']),('bi-stars','Average Quiz',('%.1f'|format(stats['avg_score']))+'%'),('bi-calendar2-check','Verified Attendance',stats['attendance_count'])] %}
+<div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-icon"><i class="bi {{icon}}"></i></div><div class="stat-value">{{value}}</div><div class="stat-label">{{label}}</div></div></div>
+{% endfor %}
+</div>
+<div class="row g-4 mt-1">
+<div class="col-xl-8">
+<div class="section-title"><h3>Continue learning</h3><a href="{{url_for('course_catalog')}}" class="muted small">View all</a></div>
+<div class="row g-3">
+{% for c in enrollments %}
+<div class="col-md-6"><div class="course-card"><div class="course-cover {{loop.index0%3==1 and 'alt' or (loop.index0%3==2 and 'green' or '')}}"><i class="bi bi-play-btn-fill"></i><span class="level-pill">{{c['level']|upper}}</span></div><div class="course-body"><h5>{{c['title']}}</h5><p>{{c['description']|truncate(95)}}</p><div class="mini-row"><span>Progress</span><strong>{{'%.0f'|format(c['progress'])}}%</strong></div><div class="progress mb-3"><div class="progress-bar" style="width:{{c['progress']}}%"></div></div><div class="d-flex gap-2"><a class="btn btn-sm btn-gradient" href="{{url_for('learn_course',course_id=c['course_id'])}}">Continue <i class="bi bi-arrow-right"></i></a><a class="btn btn-sm btn-outline-primary" href="{{url_for('student_assessments',course_id=c['course_id'])}}">AI Quiz</a></div></div></div>
+{% else %}<div class="col-12"><div class="empty-state chart-card"><i class="bi bi-mortarboard fs-1"></i><h5 class="mt-3">Your learning journey starts here</h5><a href="{{url_for('course_catalog')}}" class="btn btn-gradient mt-2">Browse courses</a></div></div>{% endfor %}
+</div>
+</div>
+<div class="col-xl-4">
+<div class="section-title"><h3>Your momentum</h3></div>
+<div class="streak-panel"><div class="d-flex justify-content-between align-items-start"><div><div class="muted small">CURRENT STREAK</div><div class="streak-number">{{user['streak']}} <small style="font-size:18px">days</small></div></div><span style="font-size:42px">🔥</span></div><p class="muted small">Keep learning daily to build your consistency streak.</p><div class="progress"><div class="progress-bar" style="width:{{[user['streak']*10,100]|min}}%;background:linear-gradient(90deg,#f59e0b,#ef4444)"></div></div></div>
+</div></div>
+
+<div class="row g-4 mt-1">
+  <div class="col-xl-8">
+    <div class="adaptive-panel">
+      <div class="adaptive-panel-head">
+        <div>
+          <span class="adaptive-kicker"><i class="bi bi-route"></i> ADAPTIVE LEARNING PATH</span>
+          <h3>Your next best learning steps</h3>
+          <p class="muted mb-0">Recommendations adapt to your skill level, career goal, progress and areas that need improvement.</p>
+        </div>
+        <a href="{{url_for('student_learning_path')}}" class="btn btn-sm btn-gradient">Open learning path</a>
+      </div>
+      <div class="path-grid">
+      {% for c in recommendations[:3] %}
+        <div class="path-card">
+          <div class="path-number">{{loop.index}}</div>
+          <div class="path-content">
+            <strong>{{c['title']}}</strong>
+            <span>{{c['category']}} · {{c['level']|capitalize}}</span>
+            <small><i class="bi bi-stars"></i> {{c['recommendation_reason']}}</small>
+          </div>
+          <a href="{{url_for('enroll',course_id=c['id'])}}" class="path-action">Start</a>
+        </div>
+      {% else %}
+        <div class="notification-empty">Complete a course or assessment to unlock more personalized recommendations.</div>
+      {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4">
+    <div class="goal-card">
+      <div class="d-flex justify-content-between align-items-center"><span class="adaptive-kicker">TODAY'S MICRO-GOAL</span><i class="bi bi-bullseye"></i></div>
+      <div class="goal-value">{{goal['completed_checkpoints']}}/{{goal['target_checkpoints']}}</div>
+      <p class="muted">verified checkpoints completed today</p>
+      <div class="progress"><div class="progress-bar" style="width:{{[goal['completed_checkpoints']/goal['target_checkpoints']*100,100]|min}}%"></div></div>
+      <div class="goal-footer"><span><i class="bi bi-clock"></i> {{goal['target_minutes']}} min target</span><span>{{gamification['points']}} XP</span></div>
+    </div>
+  </div>
+</div>
+
+{% if weak_topics %}
+<div class="focus-strip">
+  <div><i class="bi bi-crosshair2"></i><strong>Adaptive focus</strong><span>Topics needing more practice:</span></div>
+  <div class="focus-tags">{% for t in weak_topics %}<span>{{t['topic']}} · {{'%.0f'|format(t['accuracy'])}}%</span>{% endfor %}</div>
+</div>
+{% endif %}
+
+<div id="achievements" class="section-title achievement-heading">
+<div><h3>Achievements</h3><p class="muted small mb-0">Build habits, complete checkpoints, track progress, and grow your skill level.</p></div>
+<span class="achievement-count"><i class="bi bi-trophy-fill me-1"></i>{{unlocked_achievements}}/4 unlocked</span>
+</div>
+<div class="row g-3">
+{% for a in achievements %}
+<div class="col-12 col-sm-6 col-xl-3">
+<div class="achievement {% if a['unlocked'] %}achievement-unlocked{% else %}achievement-locked{% endif %}">
+<div class="achievement-top"><div class="medal"><i class="bi {{a['icon']}}"></i></div><span class="achievement-status">{% if a['unlocked'] %}<i class="bi bi-check-circle-fill"></i> Earned{% else %}Locked{% endif %}</span></div>
+<strong>{{a['title']}}</strong><div class="small muted mt-1">{{a['description']}}</div>
+<div class="achievement-progress-row"><span>{{a['progress_text']}}</span><strong>{{'100' if a['unlocked'] else ((a['progress'] / a['target'] * 100)|round|int)}}%</strong></div>
+<div class="progress achievement-progress"><div class="progress-bar" style="width:{{(a['progress'] / a['target'] * 100)|round|int}}%"></div></div>
+{% if a['unlocked'] %}<div class="achievement-earned"><i class="bi bi-stars me-1"></i> Achievement unlocked</div>{% else %}<div class="small muted mt-2">Keep learning to unlock</div>{% endif %}
+</div></div>
+{% endfor %}
+</div>
+<div class="section-title"><h3>Recommended for you</h3></div>
+<div class="row g-3">{% for c in recommendations %}<div class="col-md-6 col-lg-4"><div class="course-card"><div class="course-cover orange"><i class="bi bi-stars"></i><span class="level-pill">{{c['level']|upper}}</span></div><div class="course-body"><h5>{{c['title']}}</h5><p>{{c['description']|truncate(90)}}</p><div class="recommendation-reason"><i class="bi bi-stars"></i> {{c['recommendation_reason']}}</div>{% if c['already_enrolled'] %}<a href="{{url_for('learn_course',course_id=c['id'])}}" class="btn btn-sm btn-gradient rounded-3">Continue learning</a>{% else %}<form method="post" action="{{url_for('enroll',course_id=c['id'])}}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-outline-primary rounded-3">Enroll now</button></form>{% endif %}</div></div></div>{% else %}<div class="empty-recommendations"><p class="muted mb-2">Your personalized engine is ready. Explore the course catalog to add more learning choices.</p><a href="{{url_for('course_catalog')}}" class="btn btn-sm btn-gradient">Explore courses <i class="bi bi-arrow-right"></i></a></div>{% endfor %}</div>
+{% endblock %}

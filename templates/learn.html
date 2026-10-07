@@ -1,0 +1,42 @@
+
+{% extends "base.html" %}
+{% block title %}{{course['title']}} — Learning Room{% endblock %}
+{% block content %}
+<div class="chart-card mb-4"><div class="d-flex justify-content-between align-items-center"><div><div class="eyebrow">AI ASSESSMENT</div><h4 class="mb-1">Test what you actually learned</h4><p class="muted mb-0">Generate or take adaptive Gemini assessments for this course.</p></div><a class="btn btn-gradient" href="{{url_for('student_assessments',course_id=course['id'])}}"><i class="bi bi-stars me-1"></i> Open AI assessments</a></div></div>
+<div class="learn-shell">
+<a href="{{url_for('student_dashboard')}}" class="muted small text-decoration-none"><i class="bi bi-arrow-left"></i> Back to dashboard</a>
+<div class="dashboard-head mt-3"><div><div class="eyebrow">{{course['category']}} • {{course['level']|upper}}</div><h1>{{course['title']}}</h1><p class="muted">{{course['description']}}</p></div><div class="badge-soft"><i class="bi bi-shield-check"></i> Verified learning</div></div>
+<div class="video-frame"><video id="learningVideo" controls preload="metadata" data-course-id="{{course['id']}}">{% if course['video_url'] %}<source src="{{course['video_url']}}" type="video/mp4">{% endif %}Your browser does not support HTML5 video.</video></div>
+<div class="chart-card mt-3"><div class="d-flex justify-content-between small"><span class="muted">Course progress</span><strong id="progressText">{{'%.0f'|format(course['progress'])}}%</strong></div><div class="progress mt-2"><div id="progressBar" class="progress-bar" style="width:{{course['progress']}}%"></div></div></div>
+{% if checkpoints %}<div class="section-title"><h3>Interactive checkpoints</h3><span class="muted small">{{checkpoints|length}} knowledge checks</span></div><div class="row g-2">{% for cp in checkpoints %}<div class="col-md-6"><div class="chart-card"><div class="d-flex gap-3"><div class="stat-icon"><i class="bi bi-patch-question-fill"></i></div><div><strong>Checkpoint {{loop.index}}</strong><div class="small muted mt-1">Pauses at {{'%.0f'|format(cp['timestamp_seconds'])}} seconds</div></div></div></div></div>{% endfor %}</div>{% endif %}
+</div>
+<div class="checkpoint-modal" id="checkpointModal"><div class="checkpoint-box"><div class="d-flex justify-content-between align-items-start"><div><div class="eyebrow">KNOWLEDGE CHECK</div><h2 class="mt-1">Stay engaged 🎯</h2></div><div class="stat-icon"><i class="bi bi-stars"></i></div></div><p id="cpQuestion" class="fw-bold mt-3"></p><div id="cpOptions"></div><div id="cpFeedback" class="small mt-2"></div></div></div>
+{% endblock %}
+{% block scripts %}
+<script>
+const video=document.getElementById("learningVideo"), courseId=video.dataset.courseId, modal=document.getElementById("checkpointModal");
+const checkpoints=[{% for cp in checkpoints %}{id:{{cp['id']}},time:{{cp['timestamp_seconds']}},question:{{cp['question']|tojson}},a:{{cp['option_a']|tojson}},b:{{cp['option_b']|tojson}},c:{{cp['option_c']|tojson}},d:{{cp['option_d']|tojson}}},{% endfor %}];
+let done=new Set(), active=null;
+video.addEventListener("timeupdate",()=>{
+ if(!video.duration)return;
+ const p=Math.min(100,(video.currentTime/video.duration)*100);
+ document.getElementById("progressBar").style.width=p+"%";document.getElementById("progressText").textContent=Math.round(p)+"%";
+ fetch(`/api/progress/${courseId}`,{method:"POST",headers:{"Content-Type":"application/json","X-CSRF-Token":_csrfToken},body:JSON.stringify({progress:p,watched_seconds:video.currentTime})});
+ const cp=checkpoints.find(x=>!done.has(x.id)&&video.currentTime>=x.time&&video.currentTime<=x.time+1.2);
+ if(cp&&active!==cp.id){active=cp.id;video.pause();openCP(cp);}
+});
+function openCP(cp){
+ document.getElementById("cpQuestion").textContent=cp.question;
+ document.getElementById("cpFeedback").textContent="Answer correctly to unlock the next part of the video.";
+ document.getElementById("cpFeedback").className="small mt-2 text-muted";
+ document.getElementById("cpOptions").innerHTML=["A","B","C","D"].map(k=>`<button class="option-btn" data-a="${k}"><strong>${k}</strong> — ${cp[k.toLowerCase()]}</button>`).join("");
+ modal.classList.add("show");
+ document.querySelectorAll(".option-btn").forEach(b=>b.onclick=async()=>{
+  const r=await fetch("/api/checkpoint",{method:"POST",headers:{"Content-Type":"application/json","X-CSRF-Token":_csrfToken},body:JSON.stringify({checkpoint_id:cp.id,answer:b.dataset.a})}),d=await r.json();
+  const f=document.getElementById("cpFeedback");
+  if(d.ok){done.add(cp.id);f.textContent="✓ Correct! Attendance checkpoint verified. Continuing…";f.className="small mt-2 text-success fw-bold";setTimeout(()=>{modal.classList.remove("show");active=null;video.play()},800)}
+  else{f.textContent="✗ Not quite. Try again.";f.className="small mt-2 text-danger fw-bold"}
+ });
+}
+</script>
+{% endblock %}

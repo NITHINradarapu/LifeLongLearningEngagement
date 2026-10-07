@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}{{assessment['title']}} — AdaptiveLearn{% endblock %}
+{% block content %}
+<div class="feature-image page-feature mb-4" style="background-image:linear-gradient(100deg,rgba(35,28,92,.70),rgba(7,75,91,.35)),url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1400&q=80')"></div><div class="dashboard-head"><div><div class="eyebrow">AI-ADAPTIVE ASSESSMENT</div><h1>{{assessment['title']}}</h1><p class="muted">{{assessment['instructions']}}</p></div><div class="badge-soft" id="timer">00:00</div></div>
+<form id="assessmentForm"><div class="chart-card">
+{% for q in questions %}<div class="question-block {% if not loop.last %}border-bottom pb-4 mb-4{% endif %}"><div class="small muted mb-2">QUESTION {{loop.index}} / {{questions|length}}</div><h5>{{q['question']}}</h5>{% for letter,text in [('A',q['option_a']),('B',q['option_b']),('C',q['option_c']),('D',q['option_d'])] %}<label class="answer-option"><input type="radio" name="q{{q['id']}}" value="{{letter}}"><span><strong>{{letter}}</strong>{{text}}</span></label>{% endfor %}</div>{% endfor %}
+<button type="submit" class="btn btn-gradient btn-lg">Submit assessment <i class="bi bi-arrow-right ms-1"></i></button>
+</div></form>
+{% endblock %}
+{% block scripts %}<script>
+const started=Date.now(), timer=document.getElementById('timer');
+setInterval(()=>{const s=Math.floor((Date.now()-started)/1000); timer.textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')},1000);
+document.getElementById('assessmentForm').addEventListener('submit', async e=>{e.preventDefault(); const answers={}; document.querySelectorAll('input[type=radio]:checked').forEach(x=>answers[x.name.substring(1)]=x.value); const seconds=Math.floor((Date.now()-started)/1000); const r=await fetch('{{url_for("submit_assessment",assessment_id=assessment["id"])}}',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':_csrfToken},body:JSON.stringify({answers,completion_seconds:seconds})}); const data=await r.json(); if(data.ok){window.location='{{url_for("assessment_result",attempt_id=0)}}'.replace('/0','/'+data.attempt_id)}else alert(data.message||'Unable to submit assessment.');});
+</script>{% endblock %}

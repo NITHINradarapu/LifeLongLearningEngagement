@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Create account — AdaptiveLearn{% endblock %}
+{% block content %}
+<div class="auth-modern">
+  <div class="auth-panel auth-panel-dark register-dark">
+    <a class="public-brand auth-brand" href="{{ url_for('index') }}"><span class="brand-orbit"><i class="bi bi-stars"></i></span><span>Adaptive<span>Learn</span></span></a>
+    <div class="auth-panel-copy register-copy"><span>START YOUR NEXT CHAPTER</span><h1>Make learning<br><em>personal.</em></h1><p>Set your direction. Learn consistently. Let intelligent recommendations guide what comes next.</p></div>
+    <div class="register-visual-list">
+      <div><i class="bi bi-check2-circle"></i><span>Personalized course recommendations</span></div>
+      <div><i class="bi bi-check2-circle"></i><span>Interactive checkpoints & attendance</span></div>
+      <div><i class="bi bi-check2-circle"></i><span>AI-powered assessments & analytics</span></div>
+    </div>
+  </div>
+  <div class="auth-panel auth-panel-form">
+    <div class="auth-form-wrap register-form-wrap">
+      <a class="back-home" href="{{ url_for('index') }}"><i class="bi bi-arrow-left"></i> Back to home</a>
+      <div class="auth-heading"><span class="auth-icon"><i class="bi bi-person-plus"></i></span><span>CREATE YOUR PROFILE</span><h2>Start learning<br>smarter today.</h2><p>A few details are all you need to get started.</p></div>
+      <form method="post" class="modern-form" novalidate>
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <label>Full name</label><div class="input-wrap"><i class="bi bi-person"></i><input name="name" value="{{ form.name if form else '' }}" placeholder="Your full name" autocomplete="name" required></div>
+        <label>Email address</label><div class="input-wrap"><i class="bi bi-envelope"></i><input name="email" type="email" value="{{ form.email if form else '' }}" placeholder="you@example.com" autocomplete="email" required></div>
+        <div class="form-two-col"><div><label>Password</label><div class="input-wrap"><i class="bi bi-lock"></i><input id="registerPassword" name="password" type="password" minlength="8" placeholder="8+ characters" autocomplete="new-password" required><button type="button" class="password-toggle" data-target="registerPassword"><i class="bi bi-eye"></i></button></div></div>
+        <div><label>Confirm password</label><div class="input-wrap"><i class="bi bi-shield-lock"></i><input id="confirmPassword" name="confirm_password" type="password" minlength="8" placeholder="Repeat password" autocomplete="new-password" required><button type="button" class="password-toggle" data-target="confirmPassword"><i class="bi bi-eye"></i></button></div></div></div>
+        <label>Career objective <span>optional</span></label><div class="input-wrap"><i class="bi bi-bullseye"></i><input name="career_goal" value="{{ form.career_goal if form else '' }}" placeholder="e.g. Data Scientist, Teacher, Engineer"></div>
+        <button class="btn btn-gradient auth-submit" type="submit">Create my account <i class="bi bi-arrow-right"></i></button>
+      </form>
+      <p class="auth-switch">Already have an account? <a href="{{ url_for('login') }}">Sign in</a></p>
+      <div class="auth-note"><i class="bi bi-stars"></i><span>Your profile helps AdaptiveLearn personalize recommendations and assessments.</span></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}<script>
+document.querySelectorAll('.password-toggle').forEach(btn=>btn.addEventListener('click',()=>{const i=document.getElementById(btn.dataset.target);i.type=i.type==='password'?'text':'password';btn.querySelector('i').className=i.type==='password'?'bi bi-eye':'bi bi-eye-slash';}));
+const form=document.querySelector('.modern-form'); if(form) form.addEventListener('submit',e=>{const p=document.getElementById('registerPassword'), c=document.getElementById('confirmPassword'); if(p&&c&&p.value!==c.value){e.preventDefault();c.setCustomValidity('Passwords do not match');c.reportValidity();}else if(c)c.setCustomValidity('');});
+</script>{% endblock %}

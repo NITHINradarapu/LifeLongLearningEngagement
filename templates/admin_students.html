@@ -1,0 +1,9 @@
+
+{% extends "base.html" %}
+{% block title %}Students — AdaptiveLearn{% endblock %}
+{% block content %}
+<div class="dashboard-head"><div><div class="eyebrow">LEARNER MANAGEMENT</div><h1>Students</h1><p class="muted">Review individual progress, performance and adaptive skill levels.</p></div></div>
+<div class="admin-table"><table class="table"><thead><tr><th>Learner</th><th>Level</th><th>Career objective</th><th>Courses</th><th>Avg score</th><th></th></tr></thead><tbody>
+{% for s in students %}<tr><td><div class="d-flex align-items-center gap-2"><div class="avatar">{{s['name'][0]|upper}}</div><div><strong>{{s['name']}}</strong><div class="small muted">{{s['email']}}</div></div></div></td><td><span class="badge-soft">{{s['skill_level']}}</span></td><td>{{s['career_goal'] or 'Not specified'}}</td><td>{{s['enrolled_count']}}</td><td><strong>{{'%.1f'|format(s['avg_score'])}}%</strong></td><td><a class="btn btn-sm btn-outline-primary rounded-3" href="{{url_for('admin_student_detail',student_id=s['id'])}}">View profile</a></td></tr>{% endfor %}
+</tbody></table></div>
+{% endblock %}
