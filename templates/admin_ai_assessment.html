@@ -1,9 +1,12 @@
 {% extends "base.html" %}
+{% block title %}AI Assessment Studio — AdaptiveLearn{% endblock %}
 {% block content %}
 <div class="dashboard-head mb-4">
-  <div><div class="eyebrow"><style color="brown">AI ASSESSMENT STUDIO</style></div>
-  <h1><i class="bi bi-stars me-2"></i>AI Assessments</h1>
-  <p class="muted mb-0">Create intelligent, course-specific assessments for adaptive learner evaluation.</p></div>
+  <div>
+    <div class="eyebrow"><i class="bi bi-stars me-1"></i> AI ASSESSMENT STUDIO</div>
+    <h1>AI Assessments</h1>
+    <p class="muted mb-0">Create intelligent, course-specific assessments for adaptive learner evaluation.</p>
+  </div>
 </div>
 <div class="row g-4">
   <div class="col-lg-5">
@@ -21,7 +24,10 @@
         <input name="topic" class="form-control mb-3" value="{{selected_topic or ''}}" placeholder="e.g. Python functions">
         <label class="form-label fw-semibold">Difficulty</label>
         <select name="difficulty" class="form-select mb-3">
-          <option value="mixed">Adaptive / Mixed</option><option>Beginner</option><option>Intermediate</option><option>Advanced</option>
+          <option value="adaptive">Adaptive / Mixed</option>
+          <option value="beginner">Beginner</option>
+          <option value="intermediate">Intermediate</option>
+          <option value="advanced">Advanced</option>
         </select>
         <label class="form-label fw-semibold">Questions</label>
         <input name="question_count" type="number" min="5" max="20" value="10" class="form-control mb-4">
@@ -32,20 +38,56 @@
   <div class="col-lg-7">
     <div class="chart-card p-4">
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <div><div class="eyebrow">AI PREVIEW</div><h4 class="mb-0">Generated Questions</h4></div>
+        <div>
+          <div class="eyebrow">AI PREVIEW</div>
+          <h4 class="mb-0">Generated Questions</h4>
+        </div>
         {% if questions %}<span class="badge badge-soft">{{questions|length}} questions</span>{% endif %}
       </div>
       {% if questions %}
         {% for q in questions %}
-        <div class="question-block mb-3">
-          <div class="small text-muted">Question {{loop.index}} • {{q.get('topic','General')}}</div>
-          <h6 class="fw-bold mt-1">{{q.get('question','')}}</h6>
-          {% for option in q.get('options',[]) %}<div class="answer-option p-3 mt-2">{{option}}</div>{% endfor %}
-          <div class="small mt-3 p-3 rounded-3 bg-light"><strong>Answer:</strong> {{q.get('answer','')}}<br>{{q.get('explanation','')}}</div>
+        <div class="assessment-q-card mb-4 p-4 border rounded-4 bg-white">
+          <div class="assessment-q-header">
+            <div class="assessment-q-badges">
+              <span class="badge-q-number">Question {{loop.index}} of {{questions|length}}</span>
+              <span class="badge-q-topic"><i class="bi bi-tag-fill"></i> {{q.get('topic','General')}}</span>
+              <span class="badge-q-difficulty difficulty-{{q.get('difficulty','adaptive')|lower}}">{{q.get('difficulty','Adaptive')|capitalize}}</span>
+            </div>
+            <span class="badge badge-soft text-success"><i class="bi bi-check-circle-fill me-1"></i> Correct: {{q.get('answer','')}}</span>
+          </div>
+          <h5 class="assessment-q-text my-3">{{q.get('question','')}}</h5>
+          <div class="assessment-options-list">
+            {% set opts = q.get('options', []) %}
+            {% for letter, option in [('A', opts[0] if opts|length > 0 else ''), ('B', opts[1] if opts|length > 1 else ''), ('C', opts[2] if opts|length > 2 else ''), ('D', opts[3] if opts|length > 3 else '')] %}
+            {% if option %}
+            {% set is_correct = (letter == q.get('answer','').upper()) %}
+            <div class="assessment-option-card {{'selected' if is_correct else ''}}" style="cursor:default">
+              <div class="option-check-circle" style="{{'background:#10b981;border-color:#10b981;' if is_correct else ''}}">
+                <i class="bi bi-check-lg" style="{{'opacity:1;transform:scale(1);color:#fff;' if is_correct else ''}}"></i>
+              </div>
+              <div class="option-letter-badge" style="{{'background:linear-gradient(135deg,#10b981,#059669);color:#fff;' if is_correct else ''}}">{{letter}}</div>
+              <div class="option-text-content fw-medium">{{option|clean_option}}</div>
+              {% if is_correct %}
+              <span class="badge bg-success-subtle text-success border border-success-subtle ms-auto small">Correct</span>
+              {% endif %}
+            </div>
+            {% endif %}
+            {% endfor %}
+          </div>
+          {% if q.get('explanation') %}
+          <div class="mt-3 p-3 rounded-4 bg-light border">
+            <div class="small fw-bold text-primary mb-1"><i class="bi bi-info-circle me-1"></i> Pedagogical Explanation</div>
+            <div class="small text-muted">{{q.get('explanation','')}}</div>
+          </div>
+          {% endif %}
         </div>
         {% endfor %}
       {% else %}
-        <div class="empty-state text-center"><i class="bi bi-stars display-5 d-block mb-3"></i><h5>Ready to generate</h5><p class="muted mb-0">Select a course and configure your assessment.</p></div>
+        <div class="empty-state text-center py-5">
+          <i class="bi bi-stars display-5 d-block mb-3 text-primary"></i>
+          <h5>Ready to generate</h5>
+          <p class="muted mb-0">Select a course and configure your assessment to preview generated questions.</p>
+        </div>
       {% endif %}
     </div>
   </div>

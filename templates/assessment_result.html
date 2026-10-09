@@ -1,7 +1,100 @@
 {% extends "base.html" %}
 {% block title %}Assessment Result — AdaptiveLearn{% endblock %}
+
 {% block content %}
-<div class="dashboard-head"><div><div class="eyebrow">PERSONALIZED RESULT</div><h1>{{attempt['title']}}</h1><p class="muted">{{attempt['course_title']}}</p></div><div class="stat-card text-center" style="min-width:170px"><div class="stat-value">{{'%.0f'|format(attempt['score'])}}%</div><div class="stat-label">{{attempt['correct_answers']}} / {{attempt['total_questions']}} correct</div></div></div>
-<div class="row g-4"><div class="col-lg-7"><div class="chart-card"><h4>Question review</h4>{% for a in answers %}<div class="border-bottom py-3"><div class="d-flex justify-content-between"><strong>{{loop.index}}. {{a['question']}}</strong><span class="badge {{'bg-success' if a['is_correct'] else 'bg-danger'}}">{{'Correct' if a['is_correct'] else 'Needs review'}}</span></div><div class="small muted mt-2">Your answer: {{a['selected_answer']}} · Correct: {{a['correct_answer']}}</div><div class="small mt-2">{{a['explanation']}}</div></div>{% endfor %}</div></div>
-<div class="col-lg-5"><div class="chart-card"><h4>Topic intelligence</h4>{% for t in topics %}<div class="mb-3"><div class="mini-row"><span>{{t['topic']}}</span><strong>{{'%.0f'|format(t['accuracy'])}}%</strong></div><div class="progress"><div class="progress-bar" style="width:{{t['accuracy']}}%"></div></div><small class="muted">{{t['strength_level'].replace('_',' ')|capitalize}}</small></div>{% else %}<p class="muted">Topic analytics will build as you complete assessments.</p>{% endfor %}<a href="{{url_for('student_assessments',course_id=attempt['course_id'])}}" class="btn btn-gradient w-100 mt-2">Take another adaptive assessment</a></div></div></div>
+<div class="dashboard-head mb-4">
+  <div>
+    <div class="eyebrow"><i class="bi bi-award-fill me-1"></i> PERSONALIZED RESULT</div>
+    <h1>{{attempt['title']}}</h1>
+    <p class="muted mb-0">{{attempt['course_title']}}</p>
+  </div>
+  <div class="stat-card text-center px-4 py-3" style="min-width: 180px;">
+    <div class="stat-value text-primary mb-1">{{'%.0f'|format(attempt['score'])}}%</div>
+    <div class="stat-label fw-bold">{{attempt['correct_answers']}} / {{attempt['total_questions']}} correct</div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="chart-card p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Question Breakdown</h4>
+        <span class="badge badge-soft">{{attempt['total_questions']}} questions</span>
+      </div>
+
+      {% for a in answers %}
+      <div class="border rounded-4 p-4 mb-3 bg-white shadow-sm">
+        <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+          <div class="fw-bold" style="font-size: 1.05rem;">
+            <span class="text-primary me-1">Q{{loop.index}}.</span> {{a['question']}}
+          </div>
+          {% if a['is_correct'] %}
+          <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill flex-shrink-0">
+            <i class="bi bi-check-circle-fill me-1"></i> Correct
+          </span>
+          {% else %}
+          <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 rounded-pill flex-shrink-0">
+            <i class="bi bi-x-circle-fill me-1"></i> Needs review
+          </span>
+          {% endif %}
+        </div>
+
+        <div class="d-flex flex-wrap gap-3 small my-2 py-2 px-3 rounded-3 bg-light">
+          <div>
+            <span class="text-muted">Your answer:</span>
+            <strong class="ms-1 {{'text-success' if a['is_correct'] else 'text-danger'}}">{{a['selected_answer'] or 'Unanswered'}}</strong>
+          </div>
+          <div>
+            <span class="text-muted">Correct answer:</span>
+            <strong class="ms-1 text-success">{{a['correct_answer']}}</strong>
+          </div>
+          {% if a['topic'] %}
+          <div class="ms-auto text-muted">
+            <i class="bi bi-tag me-1"></i>{{a['topic']}}
+          </div>
+          {% endif %}
+        </div>
+
+        {% if a['explanation'] %}
+        <div class="small text-muted mt-2 ps-1">
+          <strong class="text-dark">Explanation:</strong> {{a['explanation']}}
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="chart-card p-4">
+      <h4 class="mb-3">Topic Intelligence</h4>
+      {% for t in topics %}
+      <div class="mb-4">
+        <div class="mini-row mb-1">
+          <span class="fw-semibold text-dark">{{t['topic']}}</span>
+          <strong class="text-primary">{{'%.0f'|format(t['accuracy'])}}%</strong>
+        </div>
+        <div class="progress mb-2" style="height: 8px;">
+          <div class="progress-bar" style="width: {{t['accuracy']}}%"></div>
+        </div>
+        <div class="d-flex justify-content-between small">
+          <span class="text-muted">Mastery level</span>
+          <span class="badge bg-light text-dark border">{{t['strength_level'].replace('_',' ')|capitalize}}</span>
+        </div>
+      </div>
+      {% else %}
+      <div class="empty-state py-4 text-center">
+        <i class="bi bi-graph-up display-6 text-muted mb-2 d-block"></i>
+        <p class="muted mb-0">Topic analytics will strengthen as you complete more assessments.</p>
+      </div>
+      {% endfor %}
+
+      <div class="pt-3 border-top mt-3">
+        <a href="{{url_for('student_assessments', course_id=attempt['course_id'])}}" class="btn btn-gradient w-100 py-3">
+          <i class="bi bi-arrow-repeat me-2"></i> Take another adaptive assessment
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

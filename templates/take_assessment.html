@@ -1,14 +1,301 @@
 {% extends "base.html" %}
 {% block title %}{{assessment['title']}} — AdaptiveLearn{% endblock %}
+
 {% block content %}
-<div class="feature-image page-feature mb-4" style="background-image:linear-gradient(100deg,rgba(35,28,92,.70),rgba(7,75,91,.35)),url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1400&q=80')"></div><div class="dashboard-head"><div><div class="eyebrow">AI-ADAPTIVE ASSESSMENT</div><h1>{{assessment['title']}}</h1><p class="muted">{{assessment['instructions']}}</p></div><div class="badge-soft" id="timer">00:00</div></div>
-<form id="assessmentForm"><div class="chart-card">
-{% for q in questions %}<div class="question-block {% if not loop.last %}border-bottom pb-4 mb-4{% endif %}"><div class="small muted mb-2">QUESTION {{loop.index}} / {{questions|length}}</div><h5>{{q['question']}}</h5>{% for letter,text in [('A',q['option_a']),('B',q['option_b']),('C',q['option_c']),('D',q['option_d'])] %}<label class="answer-option"><input type="radio" name="q{{q['id']}}" value="{{letter}}"><span><strong>{{letter}}</strong>{{text}}</span></label>{% endfor %}</div>{% endfor %}
-<button type="submit" class="btn btn-gradient btn-lg">Submit assessment <i class="bi bi-arrow-right ms-1"></i></button>
-</div></form>
+<div class="assessment-container">
+  <!-- Top Banner Header -->
+  <div class="dashboard-head mb-4">
+    <div>
+      <div class="eyebrow"><i class="bi bi-stars me-1"></i> AI-ADAPTIVE ASSESSMENT</div>
+      <h1>{{assessment['title']}}</h1>
+      <p class="muted mb-0">{{assessment['instructions']}}</p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <a href="{{url_for('student_assessments', course_id=assessment['course_id'])}}" class="btn btn-sm btn-outline-light">
+        <i class="bi bi-arrow-left me-1"></i> Course Quizzes
+      </a>
+    </div>
+  </div>
+
+  <!-- Sticky HUD: Timer, Progress & Question Palette -->
+  <div class="assessment-hud shadow-sm">
+    <div class="assessment-hud-top">
+      <div class="d-flex align-items-center gap-3">
+        <div class="assessment-timer-badge">
+          <i class="bi bi-stopwatch-fill"></i>
+          <span id="timerDisplay">00:00</span>
+        </div>
+        <div class="assessment-progress-count">
+          <span id="answeredCount">0</span> of {{questions|length}} answered
+        </div>
+      </div>
+      <div class="d-none d-md-block text-muted small fw-medium" id="completionPercentText">
+        0% completed
+      </div>
+    </div>
+
+    <!-- Animated Progress Bar -->
+    <div class="assessment-progress-bar-wrap mb-2">
+      <div class="assessment-progress-bar-fill" id="progressBar" style="width: 0%"></div>
+    </div>
+
+    <!-- Question Palette Dots -->
+    <div class="assessment-nav-palette">
+      {% for q in questions %}
+      <a class="nav-dot" id="nav-dot-{{loop.index}}" href="#q-card-{{loop.index}}" title="Jump to question {{loop.index}}">
+        {{loop.index}}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Assessment Questions Form -->
+  <form id="assessmentForm" novalidate>
+    {% for q in questions %}
+    {% set q_idx = loop.index %}
+    <div class="assessment-q-card" id="q-card-{{q_idx}}">
+      <!-- Question Header -->
+      <div class="assessment-q-header">
+        <div class="assessment-q-badges">
+          <span class="badge-q-number">
+            <i class="bi bi-patch-question-fill me-1"></i> QUESTION {{q_idx}} / {{questions|length}}
+          </span>
+          {% if q['topic'] %}
+          <span class="badge-q-topic">
+            <i class="bi bi-tag-fill"></i> {{q['topic']}}
+          </span>
+          {% endif %}
+          <span class="badge-q-difficulty difficulty-{{(q['difficulty'] or 'intermediate')|lower}}">
+            {{(q['difficulty'] or 'intermediate')|capitalize}}
+          </span>
+        </div>
+        <span class="badge-q-status unanswered" id="status-badge-{{q['id']}}">
+          <i class="bi bi-circle"></i> Unanswered
+        </span>
+      </div>
+
+      <!-- Question Text -->
+      <h3 class="assessment-q-text">{{q['question']}}</h3>
+
+      <!-- Uniform Option Cards -->
+      <div class="assessment-options-list">
+        {% for letter, raw_opt in [('A', q['option_a']), ('B', q['option_b']), ('C', q['option_c']), ('D', q['option_d'])] %}
+        {% set clean_opt = raw_opt|clean_option %}
+        <label class="assessment-option-card" for="opt-{{q['id']}}-{{letter}}" data-qid="{{q['id']}}" data-idx="{{q_idx}}">
+          <input type="radio" name="q{{q['id']}}" id="opt-{{q['id']}}-{{letter}}" value="{{letter}}" data-qid="{{q['id']}}" data-idx="{{q_idx}}">
+          <div class="option-check-circle">
+            <i class="bi bi-check-lg"></i>
+          </div>
+          <div class="option-letter-badge">{{letter}}</div>
+          <div class="option-text-content">{{clean_opt}}</div>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+
+    <!-- Footer Submission Bar -->
+    <div class="assessment-footer-bar">
+      <div class="assessment-footer-info">
+        <strong>Assessment completion status</strong>
+        <p id="footerStatusText">You have answered 0 of {{questions|length}} questions.</p>
+      </div>
+      <button type="submit" class="btn btn-gradient btn-lg px-4" id="submitAssessmentBtn">
+        <span>Submit assessment</span>
+        <i class="bi bi-arrow-right ms-2"></i>
+      </button>
+    </div>
+  </form>
+</div>
 {% endblock %}
-{% block scripts %}<script>
-const started=Date.now(), timer=document.getElementById('timer');
-setInterval(()=>{const s=Math.floor((Date.now()-started)/1000); timer.textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')},1000);
-document.getElementById('assessmentForm').addEventListener('submit', async e=>{e.preventDefault(); const answers={}; document.querySelectorAll('input[type=radio]:checked').forEach(x=>answers[x.name.substring(1)]=x.value); const seconds=Math.floor((Date.now()-started)/1000); const r=await fetch('{{url_for("submit_assessment",assessment_id=assessment["id"])}}',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':_csrfToken},body:JSON.stringify({answers,completion_seconds:seconds})}); const data=await r.json(); if(data.ok){window.location='{{url_for("assessment_result",attempt_id=0)}}'.replace('/0','/'+data.attempt_id)}else alert(data.message||'Unable to submit assessment.');});
-</script>{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+  const started = Date.now();
+  const timerDisplay = document.getElementById('timerDisplay');
+  const answeredCountEl = document.getElementById('answeredCount');
+  const completionPercentEl = document.getElementById('completionPercentText');
+  const progressBar = document.getElementById('progressBar');
+  const footerStatusText = document.getElementById('footerStatusText');
+  const form = document.getElementById('assessmentForm');
+  const submitBtn = document.getElementById('submitAssessmentBtn');
+  const totalQuestions = {{questions|length}};
+
+  // 1. Live Timer
+  setInterval(() => {
+    const s = Math.floor((Date.now() - started) / 1000);
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    if (timerDisplay) {
+      timerDisplay.textContent = String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+    }
+  }, 1000);
+
+  // 2. Interactive Selection & State Tracking
+  function updateProgress() {
+    const answeredInputs = document.querySelectorAll('#assessmentForm input[type=radio]:checked');
+    const answeredMap = new Map();
+    answeredInputs.forEach(input => {
+      answeredMap.set(input.dataset.qid, input);
+    });
+
+    const count = answeredMap.size;
+    const percent = totalQuestions > 0 ? Math.round((count / totalQuestions) * 100) : 0;
+
+    if (answeredCountEl) answeredCountEl.textContent = count;
+    if (completionPercentEl) completionPercentEl.textContent = percent + '% completed';
+    if (progressBar) progressBar.style.width = percent + '%';
+    if (footerStatusText) {
+      if (count === totalQuestions) {
+        footerStatusText.textContent = `All ${totalQuestions} questions answered! Ready to submit.`;
+        footerStatusText.classList.add('text-success');
+      } else {
+        footerStatusText.textContent = `You have answered ${count} of ${totalQuestions} questions (${totalQuestions - count} remaining).`;
+        footerStatusText.classList.remove('text-success');
+      }
+    }
+  }
+
+  // Handle radio option clicks and styling
+  document.querySelectorAll('.assessment-option-card input[type=radio]').forEach(radio => {
+    radio.addEventListener('change', function() {
+      const qid = this.dataset.qid;
+      const idx = this.dataset.idx;
+
+      // Update card option classes in this question
+      const siblingCards = document.querySelectorAll(`.assessment-option-card[data-qid="${qid}"]`);
+      siblingCards.forEach(c => c.classList.remove('selected'));
+      const parentCard = this.closest('.assessment-option-card');
+      if (parentCard) parentCard.classList.add('selected');
+
+      // Update question status badge
+      const statusBadge = document.getElementById(`status-badge-${qid}`);
+      if (statusBadge) {
+        statusBadge.className = 'badge-q-status answered';
+        statusBadge.innerHTML = '<i class="bi bi-check-circle-fill"></i> Answered';
+      }
+
+      // Update question nav dot
+      const navDot = document.getElementById(`nav-dot-${idx}`);
+      if (navDot) {
+        navDot.classList.add('answered');
+      }
+
+      updateProgress();
+    });
+  });
+
+  // Click on option card selects its radio
+  document.querySelectorAll('.assessment-option-card').forEach(card => {
+    card.addEventListener('click', function(e) {
+      const radio = this.querySelector('input[type=radio]');
+      if (radio && e.target !== radio) {
+        radio.checked = true;
+        radio.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+  });
+
+  // Smooth scroll for nav palette dots
+  document.querySelectorAll('.assessment-nav-palette .nav-dot').forEach(dot => {
+    dot.addEventListener('click', function(e) {
+      e.preventDefault();
+      const targetId = this.getAttribute('href').substring(1);
+      const targetEl = document.getElementById(targetId);
+      if (targetEl) {
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Briefly highlight card
+        targetEl.style.transition = 'box-shadow 0.3s ease, border-color 0.3s ease';
+        targetEl.style.borderColor = '#635bff';
+        targetEl.style.boxShadow = '0 0 0 4px rgba(99, 91, 255, 0.15)';
+        setTimeout(() => {
+          targetEl.style.borderColor = '';
+          targetEl.style.boxShadow = '';
+        }, 1200);
+      }
+    });
+  });
+
+  // Track scroll position to highlight active question in HUD palette
+  const cards = document.querySelectorAll('.assessment-q-card');
+  if ('IntersectionObserver' in window && cards.length) {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          const match = id.match(/\d+/);
+          if (match) {
+            document.querySelectorAll('.assessment-nav-palette .nav-dot').forEach(d => d.classList.remove('active-target'));
+            const activeDot = document.getElementById(`nav-dot-${match[0]}`);
+            if (activeDot) activeDot.classList.add('active-target');
+          }
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    cards.forEach(card => observer.observe(card));
+  }
+
+  // 3. Submission Handler
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const checkedRadios = document.querySelectorAll('#assessmentForm input[type=radio]:checked');
+    const answeredCount = checkedRadios.length;
+
+    if (answeredCount < totalQuestions) {
+      const unanswered = totalQuestions - answeredCount;
+      const confirmSubmit = confirm(`You have ${unanswered} unanswered question${unanswered > 1 ? 's' : ''}.\n\nAre you sure you want to submit your assessment now?`);
+      if (!confirmSubmit) {
+        // Scroll to the first unanswered question
+        for (let i = 1; i <= totalQuestions; i++) {
+          const dot = document.getElementById(`nav-dot-${i}`);
+          if (dot && !dot.classList.contains('answered')) {
+            const firstUnanswered = document.getElementById(`q-card-${i}`);
+            if (firstUnanswered) {
+              firstUnanswered.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            break;
+          }
+        }
+        return;
+      }
+    }
+
+    const answers = {};
+    checkedRadios.forEach(x => {
+      answers[x.name.substring(1)] = x.value;
+    });
+
+    const seconds = Math.floor((Date.now() - started) / 1000);
+
+    // Disable button & show spinner
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Submitting & evaluating answers…';
+
+    try {
+      const r = await fetch('{{url_for("submit_assessment", assessment_id=assessment["id"])}}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': _csrfToken
+        },
+        body: JSON.stringify({ answers, completion_seconds: seconds })
+      });
+      const data = await r.json();
+      if (data.ok) {
+        window.location = '{{url_for("assessment_result", attempt_id=0)}}'.replace('/0', '/' + data.attempt_id);
+      } else {
+        alert(data.message || 'Unable to submit assessment.');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>Submit assessment</span> <i class="bi bi-arrow-right ms-2"></i>';
+      }
+    } catch (err) {
+      alert('Network or submission error: ' + err.message);
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<span>Submit assessment</span> <i class="bi bi-arrow-right ms-2"></i>';
+    }
+  });
+})();
+</script>
+{% endblock %}

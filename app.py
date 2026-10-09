@@ -568,6 +568,20 @@ Rules:
         raise
 
 
+def clean_option_text(text):
+    if not text:
+        return ""
+    import re
+    # Strip any redundant leading labels like "A)", "A.", "a:", "(A)", etc.
+    cleaned = re.sub(r"^(\(?[A-Da-d0-9][\.\)\:\-]\s*)+", "", str(text).strip()).strip()
+    return cleaned or str(text).strip()
+
+
+@app.template_filter("clean_option")
+def clean_option_filter(text):
+    return clean_option_text(text)
+
+
 def save_assessment(course_id, quiz, difficulty="adaptive"):
     db = get_db()
     cur = db.execute("""INSERT INTO assessments(course_id,title,instructions,difficulty,question_count,generated_by,status,created_at)
@@ -580,8 +594,8 @@ def save_assessment(course_id, quiz, difficulty="adaptive"):
             answer = "A"
         db.execute("""INSERT INTO assessment_questions(assessment_id,question,option_a,option_b,option_c,option_d,
                     correct_answer,explanation,difficulty,topic,learning_objective)
-                    VALUES(?,?,?,?,?,?,?,?,?,?,?)""", (assessment_id, q.question, q.option_a, q.option_b, q.option_c,
-                    q.option_d, answer, q.explanation, q.difficulty, q.topic, q.learning_objective))
+                    VALUES(?,?,?,?,?,?,?,?,?,?,?)""", (assessment_id, q.question, clean_option_text(q.option_a), clean_option_text(q.option_b), clean_option_text(q.option_c),
+                    clean_option_text(q.option_d), answer, q.explanation, q.difficulty, q.topic, q.learning_objective))
     db.commit()
     return assessment_id
 
@@ -1169,7 +1183,7 @@ def take_assessment(assessment_id):
     assessment = db.execute("SELECT a.*,c.title course_title,c.id course_id FROM assessments a JOIN courses c ON c.id=a.course_id WHERE a.id=? AND a.status='published'", (assessment_id,)).fetchone()
     if not assessment or not db.execute("SELECT 1 FROM enrollments WHERE student_id=? AND course_id=?", (student_id, assessment["course_id"])).fetchone():
         flash("Assessment unavailable.", "danger"); return redirect(url_for("student_dashboard"))
-    questions = db.execute("SELECT id,question,option_a,option_b,option_c,option_d FROM assessment_questions WHERE assessment_id=? ORDER BY id", (assessment_id,)).fetchall()
+    questions = db.execute("SELECT id,question,option_a,option_b,option_c,option_d,difficulty,topic FROM assessment_questions WHERE assessment_id=? ORDER BY id", (assessment_id,)).fetchall()
     return render_template("take_assessment.html", assessment=assessment, questions=questions)
 
 

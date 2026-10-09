@@ -142,11 +142,13 @@ textarea.form-control{min-height:110px}
 }
 .video-frame video{display:block;width:100%;min-height:420px;object-fit:cover}
 .answer-option{
-  border:1px solid #e2e6ef!important;border-radius:16px!important;
-  background:#fff;transition:.18s!important;
+  display:flex!important;align-items:center;gap:14px;
+  padding:14px 18px!important;border:1.5px solid #e2e6ef!important;border-radius:16px!important;
+  background:#fff;transition:all .2s cubic-bezier(0.4, 0, 0.2, 1)!important;
+  margin-bottom:10px;cursor:pointer;user-select:none;
 }
-.answer-option:hover{border-color:#8c83ff!important;background:#faf9ff}
-.question-block{padding:20px;border-radius:18px;background:linear-gradient(135deg,#fff,#fafaff)}
+.answer-option:hover{border-color:#8c83ff!important;background:#faf9ff;transform:translateY(-1px)}
+.question-block{padding:24px;border-radius:20px;background:#ffffff;border:1px solid rgba(100,116,139,.12);box-shadow:0 8px 24px rgba(35,42,70,.04);margin-bottom:20px}
 .notification-panel{box-shadow:0 25px 70px rgba(31,41,55,.18)!important}
 .section-title h3,.section-title h4{font-weight:750;letter-spacing:-.35px}
 .eyebrow{font-weight:800;letter-spacing:1.5px}
@@ -261,3 +263,183 @@ html{scroll-behavior:smooth}
 @media(max-width:1050px){.home-hero{padding-left:5%;padding-right:5%}.feature-grid{grid-template-columns:repeat(2,1fr)}.public-nav{padding:0 20px}.growth-banner{grid-template-columns:1fr}.workflow-section{gap:45px}.hero-copy h1{font-size:62px}.auth-panel-copy h1{font-size:45px}}
 @media(max-width:800px){.public-nav-links{display:none}.home-hero{grid-template-columns:1fr;padding-top:55px;min-height:auto}.hero-visual{min-height:420px;margin-top:15px}.learning-orb{transform:scale(.82)}.floating-chip{top:15px}.progress-float{left:4%}.streak-float{right:4%}.feature-grid{grid-template-columns:1fr}.feature-strip,.workflow-section,.growth-banner{padding:75px 6%}.workflow-section{grid-template-columns:1fr}.workflow-section .workflow-copy{position:static}.growth-banner h2,.section-intro h2,.workflow-copy h2{font-size:38px}.auth-modern{grid-template-columns:1fr}.auth-panel-dark{display:none}.auth-panel-form{min-height:100vh;padding:35px 8%}}
 @media(max-width:520px){.public-nav{height:70px}.nav-login{display:none}.public-nav-actions{margin-left:auto}.home-hero{padding:50px 6% 20px}.hero-copy h1{font-size:48px;letter-spacing:-2.5px}.hero-copy>p{font-size:14px}.hero-trust{margin-top:38px}.hero-visual{min-height:350px}.learning-orb{transform:scale(.65)}.floating-card{transform:scale(.9)}.progress-float{left:-3%;bottom:70px}.streak-float{right:-3%;bottom:15px}.floating-chip{right:0}.feature-card{min-height:225px}.feature-icon{margin-bottom:35px}.workflow-step{grid-template-columns:25px 45px 1fr;padding:15px;gap:10px}.workflow-step>div{width:42px;height:42px}.growth-metrics{gap:8px}.public-footer{flex-wrap:wrap}.public-footer p{order:3;flex-basis:100%}.auth-panel-form{padding:30px 7%}.auth-heading h2{font-size:30px}.form-two-col{grid-template-columns:1fr}.modern-form{gap:7px}}
+
+/* =========================================================
+   ASSESSMENT ENGINE & UI — Uniform, modern, responsive design
+   ========================================================= */
+.assessment-container{max-width:920px;margin:0 auto}
+
+/* Sticky HUD Progress & Timer Bar */
+.assessment-hud{
+  position:sticky;top:86px;z-index:15;
+  background:rgba(255,255,255,.95);backdrop-filter:blur(18px);
+  border:1px solid rgba(100,116,139,.14);border-radius:22px;
+  padding:16px 22px;margin-bottom:24px;
+  box-shadow:0 14px 40px rgba(23,32,51,.08);
+  transition:all .25s ease;
+}
+.assessment-hud-top{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;margin-bottom:12px;flex-wrap:wrap;
+}
+.assessment-timer-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:14px;
+  color:#4f46e5;background:#eef2ff;border:1px solid rgba(99,91,255,.18);
+  padding:6px 14px;border-radius:99px;
+}
+.assessment-timer-badge i{color:#635bff;animation:pulse 2s infinite ease-in-out}
+.assessment-progress-info{display:flex;align-items:center;gap:12px}
+.assessment-progress-count{font-size:13px;font-weight:700;color:var(--ui-ink)}
+.assessment-progress-bar-wrap{
+  width:100%;height:8px;background:#e2e8f0;border-radius:99px;overflow:hidden;
+}
+.assessment-progress-bar-fill{
+  height:100%;background:linear-gradient(90deg,#635bff,#8b5cf6);
+  border-radius:99px;transition:width .35s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* Question Navigator Palette */
+.assessment-nav-palette{
+  display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;
+  padding-top:12px;border-top:1px dashed rgba(100,116,139,.16);
+}
+.nav-dot{
+  width:32px;height:32px;border-radius:10px;border:1px solid #e2e8f0;
+  background:#f8fafc;color:#64748b;font-size:12px;font-weight:700;
+  font-family:"Space Grotesk",sans-serif;display:grid;place-items:center;
+  text-decoration:none!important;cursor:pointer;transition:all .2s ease;
+}
+.nav-dot:hover{
+  border-color:#635bff;color:#635bff;background:#f5f3ff;transform:translateY(-2px);
+}
+.nav-dot.answered{
+  background:#ecfdf5;border-color:#a7f3d0;color:#059669;
+}
+.nav-dot.active-target{
+  box-shadow:0 0 0 2px #635bff;border-color:#635bff;
+}
+
+/* Individual Question Card */
+.assessment-q-card{
+  background:#ffffff;border:1px solid rgba(100,116,139,.14);
+  border-radius:24px;padding:28px;margin-bottom:24px;
+  box-shadow:0 10px 30px rgba(35,42,70,.05);
+  scroll-margin-top:180px;transition:border-color .25s ease,box-shadow .25s ease;
+}
+.assessment-q-card:hover{
+  box-shadow:0 14px 40px rgba(35,42,70,.08);
+}
+.assessment-q-header{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:10px;margin-bottom:18px;
+}
+.assessment-q-badges{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.badge-q-number{
+  font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;
+  background:#eef2ff;color:#4f46e5;border:1px solid rgba(99,91,255,.15);
+  padding:5px 12px;border-radius:99px;
+}
+.badge-q-topic{
+  font-size:11px;font-weight:600;background:#f1f5f9;color:#475569;
+  padding:5px 12px;border-radius:99px;display:inline-flex;align-items:center;gap:5px;
+}
+.badge-q-difficulty{
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
+  padding:4px 10px;border-radius:99px;
+}
+.badge-q-difficulty.difficulty-beginner{background:#ecfdf5;color:#059669;border:1px solid #a7f3d0}
+.badge-q-difficulty.difficulty-intermediate{background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe}
+.badge-q-difficulty.difficulty-advanced{background:#fdf2f8;color:#db2777;border:1px solid #fbcfe8}
+.badge-q-status{
+  font-size:11px;font-weight:700;padding:5px 12px;border-radius:99px;
+  display:inline-flex;align-items:center;gap:6px;transition:all .2s ease;
+}
+.badge-q-status.unanswered{background:#f8fafc;color:#94a3b8;border:1px solid #e2e8f0}
+.badge-q-status.answered{background:#ecfdf5;color:#059669;border:1px solid #a7f3d0}
+
+.assessment-q-text{
+  font-family:"Space Grotesk",sans-serif;font-size:1.18rem;font-weight:600;
+  color:#172033;line-height:1.55;margin-bottom:22px;
+}
+
+/* Uniform Option Cards */
+.assessment-options-list{
+  display:flex;flex-direction:column;gap:12px;
+}
+.assessment-option-card{
+  display:flex;align-items:center;gap:16px;width:100%;
+  padding:16px 20px;background:#ffffff;border:1.5px solid #e2e8f0;
+  border-radius:18px;cursor:pointer;position:relative;
+  transition:all .2s cubic-bezier(0.4,0,0.2,1);margin-bottom:0;
+  user-select:none;
+}
+.assessment-option-card:hover{
+  border-color:#8c83ff;background:#faf9ff;
+  transform:translateY(-1px);box-shadow:0 6px 20px rgba(99,91,255,.08);
+}
+.assessment-option-card input[type="radio"]{
+  position:absolute;opacity:0;pointer-events:none;width:0;height:0;
+}
+
+/* Radio check circle */
+.option-check-circle{
+  width:22px;height:22px;border-radius:50%;border:2px solid #cbd5e1;
+  display:grid;place-items:center;flex-shrink:0;transition:all .2s ease;
+  background:#fff;
+}
+.option-check-circle i{
+  font-size:12px;color:#fff;opacity:0;transform:scale(0.5);
+  transition:all .2s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* Option letter badge (A, B, C, D) */
+.option-letter-badge{
+  width:38px;height:38px;border-radius:12px;background:#f1f5f9;color:#475569;
+  font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:15px;
+  display:grid;place-items:center;flex-shrink:0;
+  transition:all .2s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* Option text content */
+.option-text-content{
+  flex:1;font-size:.98rem;font-weight:500;color:#334155;
+  line-height:1.5;word-break:break-word;
+}
+
+/* Active / Checked State */
+.assessment-option-card:has(input[type="radio"]:checked),
+.assessment-option-card.selected{
+  border-color:#635bff!important;
+  background:linear-gradient(135deg,#f7f6ff 0%,#ffffff 100%)!important;
+  box-shadow:0 8px 25px rgba(99,91,255,.14)!important;
+  transform:translateY(-1px);
+}
+.assessment-option-card:has(input[type="radio"]:checked) .option-check-circle,
+.assessment-option-card.selected .option-check-circle{
+  background:#635bff;border-color:#635bff;
+}
+.assessment-option-card:has(input[type="radio"]:checked) .option-check-circle i,
+.assessment-option-card.selected .option-check-circle i{
+  opacity:1;transform:scale(1);
+}
+.assessment-option-card:has(input[type="radio"]:checked) .option-letter-badge,
+.assessment-option-card.selected .option-letter-badge{
+  background:linear-gradient(135deg,#635bff,#8b5cf6)!important;
+  color:#ffffff!important;box-shadow:0 4px 14px rgba(99,91,255,.35);
+}
+.assessment-option-card:has(input[type="radio"]:checked) .option-text-content,
+.assessment-option-card.selected .option-text-content{
+  color:#0f172a;font-weight:600;
+}
+
+/* Submit bar */
+.assessment-footer-bar{
+  background:#ffffff;border:1px solid rgba(100,116,139,.14);
+  border-radius:24px;padding:24px 28px;box-shadow:var(--ui-shadow);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:16px;margin-top:32px;
+}
+.assessment-footer-info strong{display:block;font-size:16px;color:var(--ui-ink)}
+.assessment-footer-info p{margin:4px 0 0;font-size:13px;color:var(--ui-muted)}
+
